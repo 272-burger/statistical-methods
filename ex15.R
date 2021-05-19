@@ -96,6 +96,81 @@ text(9.5, 30, "y=10.13+1.57x")
 plot(매출액 ~ 광고비, xlab="광고비", ylab="매출액")
 title("전체자료")
 points(광고비[설비투자가변수==0], 매출액[설비투자가변수==0], pch=19)
+lines(x <- c(4,9), y=8.04+1.57*x)
 lines(x <- c(8, 16), y=10.13+1.57*x, lty=3)
 text(9.5, 30, "y=10.13+1.57x")
 
+## 두 직선의 절편 차 = 더미 계수의 절편값 = 2.088
+
+# 다항회귀
+# assigning data
+x <-  c(250, 260, 270, 280, 290, 300, 310, 320, 330, 340)
+y <-  c(45, 51, 56, 70, 72, 86, 81, 67, 53, 40)
+
+plot(x,y, xlab = "온도", ylab ="강도")
+
+# 이 예제의 산점도는 곡선형태를 분명히 보이므로 1차 회귀 없이 바로 이차 회귀를
+# 시도할 수 있음. 여기서는 잔차도를 비교하기 위하여 1차 회귀를 적합함
+# 산점도에서는 쉽게 보이지 않던 곡선형태가 잔차도에서는 뚜렷이 보일 수 있음
+
+# 우선 1차 회귀해보면
+mylm1 <- lm(y~x)
+
+anova(mylm1)
+summary(mylm1)
+
+curve(mylm1$coeff[1] + mylm1$coeff[2]*x, add=T)
+title(main="1차 회귀")
+
+windows()
+plot(mylm1$fitted, mylm1$residuals, xlab = "y-hat", ylab = "r", main = "1차 회귀 잔차그림")
+abline(0, 0)
+
+# 이차항 추가
+x2 <- x*x
+mylm2 <- lm(y~x+x2)
+
+anova(mylm2)
+summary(mylm2)
+# 이차항의 계수가 유의적임
+# 특별한 경우를 젤외하고 제일 고차항의 계수가 유의적이라면
+# 낮은 차수의 항은 관례적으로 추가로 검정하지 않는다 (절편항 포함)
+# 낮은 차수의 항이 비유의적이라 하더라도 회귀식에서 제외하지 않음
+
+windows()
+plot(x, y, xlab="온도", ylab="강도")
+curve(mylm2$coeff[1] + mylm2$coeff[2]*x + mylm2$coeff[3]*x2,
+      add=T)
+title(main = "2차 다항회귀")
+
+windows()
+plot(mylm2$fitted, mylm2$residuals, xlab = "y-hat",
+     ylab = "r", main = "2차 다항회귀 잔차그림")
+abline(0, 0)
+
+## 일차 다항회귀 잔차그림 vs 이차 다항회귀 잔차그림
+## 상당히 fitting이 개선되었음을 비교해볼 수 있음
+
+# 삼차항 추가
+x3 <- x^3
+mylm3 <- lm(y~x+x2+x3)
+
+windows()
+plot(x, y, xlab="온도", ylab="강도", main="3차 다항회귀")
+curve(mylm3$coeff[1] + mylm3$coeff[2]*x + mylm3$coeff[3]*x^2
+      + mylm3$coeff[4]*x^3, add=T)
+
+summary(mylm3)
+
+plot(mylm3$fitted, mylm3$residuals)
+abline(0,0)
+
+## 3차 회귀식에서의 잔차들은 (-7, 6) 범위로 2차 회귀식보다 0쪽으로 줄었으나 
+## 줄어든 정도는 아주 많이 둔화됨
+## 3차 잔차그림; 2차 회귀식의 경우보다 오히려 더 뚜렷한 곡선형태가 나타남
+## 따라서 이 경우 2차 회귀분석이 가장 적합하다는 결론을 내릴 수 있음
+
+## 그러나 2차 다항곡선과 3차 다항곡선을 적합하여 보면 3차가 더 적합해 보임
+## if 예측력 관점이라면 3차 곡선이 나을것
+## 통계적 관례로는 2차 곡선이 나음
+## 둘 다 제시하는 것이 바람직!
