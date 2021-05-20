@@ -86,17 +86,15 @@ lm_q11.2
 
 summary(lm_q11.2)
 
-# Visualization
-## 이거 이해 바람
-## y ~ x1
-plot(y ~ x1)
-curve(lm_q11.2$coeff[1] + lm_q11.2$coeff[2] * x, add = T)
-## y ~ x2
-plot(y ~ x2)
-curve(lm_q11.2$coeff[1] + lm_q11.2$coeff[3] * x, add=T)
-
 # residual plot
+par(mfrow = c(1,3))
 plot(lm_q11.2$fitted.values, lm_q11.2$residuals, xlab = "인시간 - hat", ylab = "잔차", main = "잔차그림")
+abline(0,0)
+
+plot(x1, lm_q11.2$residuals, xlab="수술수", ylab="잔차", main="잔차그림")
+abline(0,0)
+
+plot(x3, lm_q11.2$residuals, xlab="수술실수", ylab="잔차", main="잔차그림")
 abline(0,0)
 
 # ==== 15.12 ====
@@ -153,4 +151,10 @@ lm_q12.2
 
 # residual plot
 plot(lm_q12.2$fitted.values, lm_q12.2$residuals, xlab = "난방비 - hat", ylab = "잔차", main = "잔차그림")
+abline(0,0)
+
+plot(temp, lm_q12.2$residuals, xlab="외부최저기온", ylab="잔차", main="잔차그림")
+abline(0,0)
+
+plot(thick, lm_q12.2$residuals, xlab="단열재두께", ylab="잔차", main="잔차그림")
 abline(0,0)
