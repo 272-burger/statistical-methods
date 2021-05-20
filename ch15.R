@@ -63,10 +63,9 @@ x3 <- c(4, 11, 4, 2,
 (df_q11 <- data.frame(y, x1, x2, x3))
 
 # Scattor plot
-par(mfrow = c(1,3))
-plot(y ~ x1)
-plot(y ~ x2)
-plot(y ~ x3)
+plot(y ~ x1, main = "Y ~ X1")
+plot(y ~ x2, main = "Y ~ X2")
+plot(y ~ x3, main = "Y ~ X3")
 
 # Correlation
 cor(df_q11)
@@ -87,6 +86,18 @@ lm_q11.2
 
 summary(lm_q11.2)
 
+# Visualization
+## 이거 이해 바람
+## y ~ x1
+plot(y ~ x1)
+curve(lm_q11.2$coeff[1] + lm_q11.2$coeff[2] * x, add = T)
+## y ~ x2
+plot(y ~ x2)
+curve(lm_q11.2$coeff[1] + lm_q11.2$coeff[3] * x, add=T)
+
+# residual plot
+plot(lm_q11.2$fitted.values, lm_q11.2$residuals, xlab = "인시간 - hat", ylab = "잔차", main = "잔차그림")
+abline(0,0)
 
 # ==== 15.12 ====
 # Assigning data
@@ -139,3 +150,7 @@ summary(lm_q12)
 # eliminated x3, x4
 lm_q12.2 <- lm(cost ~ temp + thick)
 lm_q12.2
+
+# residual plot
+plot(lm_q12.2$fitted.values, lm_q12.2$residuals, xlab = "난방비 - hat", ylab = "잔차", main = "잔차그림")
+abline(0,0)
