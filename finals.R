@@ -83,10 +83,6 @@ f_value.block <- msb / mse
 
 
 
-# ====4====
-?mrfDepth
-install.packages(mrfDepth)
-
 # ====5====
 # Assigning data
 cost <- c(250, 380, 165, 43, 92, 200,
@@ -106,7 +102,7 @@ chimney <- c(6, 10, 3, 9, 6, 5, 7, 10,
 df <- data.frame(cost, temp, thick, window, chimney)
 colnames(df) <- c("난방비($)", "외부 최저기온", "단열재 두께",
                       "창문수", "굴뚝사용년수")
-df
+
 
 # Scatter plot
 par(mfrow=c(2,2))
@@ -114,3 +110,47 @@ plot(cost ~ temp)
 plot(cost ~ thick)
 plot(cost ~ window)
 plot(cost ~ chimney)
+
+cor(df)
+
+# variable selection
+
+# forward selection ; F value
+lm <- lm(cost~1, data = df) 
+addterm(lm, ~.+temp+thick+window+chimney, test = "F")
+
+fwd.lm1 <- lm(cost~temp, data = df) # temp(외부최저기온) 선택
+addterm(fwd.lm1, ~.+thick+window+chimney, test = "F")
+
+fwd.lm2 <- lm(cost~temp+thick, data = df) # thick(단열재두께) 선택
+addterm(fwd.lm2, ~.+window+chimney, test = "F")
+
+# backward elimination ; F value
+lmfull <- lm(cost~temp+thick+window+chimney, data=df)
+dropterm(lmfull, test="F")
+
+bwd.lm1 <- lm(cost~temp+thick+chimney, data=df) # window(창문수) 제거
+dropterm(bwd.lm1, test="F")
+
+bwd.lm2 <- lm(cost~temp+thick, data=df) # chimney(굴뚝사용년수)제거
+dropterm(bwd.lm2, test="F")
+
+
+# stepwise selection ; AIC
+mystep <- step(lm, scope=list(upper=lmfull), direction = "both")
+mystep
+
+# 회귀모형
+mystep
+mystep$anova
+summary(mystep)
+
+# Model comparison
+## stepwise vs forward, backward
+model.stepwise <- lm(cost~temp+thick+chimney, data = df)
+summary(model.stepwise)
+AIC(model.stepwise)
+
+model.forward <- lm(cost~temp+thick, data=df)
+summary(model.forward)
+AIC(model.forward)
