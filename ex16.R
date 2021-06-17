@@ -92,3 +92,92 @@ plot(Girth, sqrt_Volume)
 
 
 
+
+# ====3.로지스틱회귀====
+# 예제 16.2
+?mtcars
+attach(mtcars)
+    
+windows()
+par(mfcol=c(1,2))
+plot(am~wt)
+plot(am~hp)
+# cf. hp보다 wt가 로지스틱 회귀를 적합하기 더 좋음
+
+## 겹쳐있는 자료들은 jittering
+par(mfcol=c(1,2))
+plot(jitter(am)~wt)
+plot(jitter(am)~hp)
+
+# 로지스틱 회귀; glm (generalized linear model, 일반선형화모형)
+## X변수 하나; wt
+## family = binomial
+logit1 <- glm(am~wt, family = binomial)
+summary(logit1)
+
+windows()
+plot(am~wt, ylab="am", xlab="wt")
+curve(exp(logit1$coefficients[1] + logit1$coefficients[2]*x/
+              (1+exp(logit1$coefficients[1]+logit1$coefficients[2]*x)), add = T))
+
+# ====4.변수선택====
+library(MASS)
+attach(cement)
+
+pairs(cement)
+# x1이나 x3의 선형성은 약함
+# x2와 x4의 선형성이 강함 cor = -0.97
+cor(cement)
+
+# 전진선택
+## step; AIC 기준으로 변수선택
+### AIC 작을수록 우수한 모형
+lm <- lm(y~1, data = cement) # 절편항만 있는 모형
+fwdAIC <- step(lm, direction = "forward", scope=(~x1+x2+x3+x4), data = cement)
+
+## addterm; F통계량 기준으로 변수선택
+### F통계량 클수록 우수한 모형
+lm <- lm(y~1, data = cement) 
+addterm(lm, ~.+x1+x2+x3+x4, test = "F")
+
+fwd.lm1 <- lm(y~x4, data = cement) # x4 선택
+addterm(fwd.lm1, ~.+x1+x2+x3, test = "F")
+
+fwd.lm2 <- lm(y~x1+x4, data = cement)
+addterm(fwd.lm2, ~.+x2+x3, test = "F")
+
+# 후진제거
+## step; AIC
+lmfull <- lm(y~x1+x2+x3+x4, data=cement)
+bwdAIC <- step(lmfull, direction = "backward", scope = (~x1+x2+x3+x4))
+
+# 요 예제의 경우 전진선택과 후진제거의 결과가 동일함
+## dropterm; F통계량
+lmfull <- lm(y~x1+x2+x3+x4, data=cement)
+dropterm(lmfull, test="F")
+
+bwd.lm1 <- lm(y~x1+x2+x4, data=cement) #x3 제거
+dropterm(bwd.lm1, test="F")
+
+bwd.lm2 <- lm(y~x1+x2, data=cement) #x4 제거
+dropterm(bwd.lm2, test="F")
+
+# 단계적 선택
+## AIC
+lm <- lm(y~1, data=cement) # 절편만 있는 모형
+lmfull <- lm(y~., data=cement) # X변수 전부 포함한 모형
+mystep <- step(lm, scope=list(upper=lmfull), direction = "both")
+
+# mystep 회귀분석
+mystep$anova
+summary(mystep)
+
+# Model comparison
+## stepwise vs forward
+model.stepwise <- lm(y~x1+x2, data = cement)
+summary(model.stepwise)
+AIC(model.stepwise)
+
+model.forward <- lm(y~x1+x2+x4, data=cement)
+summary(model.forward)
+AIC(model.forward)
