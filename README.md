@@ -1,3 +1,3 @@
-# stats
- 통방 뿌시기
+# statistical method
+ 통방
  
